@@ -8,9 +8,6 @@ var states = [];
 
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
-	for (var i = 0; i < 10; i++) {
-		states.push(new State(50 + i * 2.5 * STATE_RADIUS, HEIGHT / 2, STATE_RADIUS));
-	}
 }
 
 function draw() {
@@ -23,7 +20,7 @@ function draw() {
 function mousePressed() {
 	var clickedState = detectClickOnState();
 	if (clickedState == -1) {
-		console.log("you missed");
+		states.push(new State(mouseX, mouseY, STATE_RADIUS));
 	} else {
 		console.log("got it! State #" + clickedState);
 	}
