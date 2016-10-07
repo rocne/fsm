@@ -22,7 +22,7 @@ function mousePressed() {
 	if (clickedState == -1) {
 		states.push(new State(mouseX, mouseY, STATE_RADIUS));
 	} else {
-		console.log("got it! State #" + clickedState);
+		states[clickedState].toggleIsFinal();
 	}
 }
 

@@ -10,6 +10,13 @@ function State(x, y, r) {
 		noFill();
 		translate(this.pos.x, this.pos.y);
 		ellipse(0, 0, 2 * this.radius);
+		if (this.isFinal) {
+			ellipse(0, 0, 1.8 * this.radius)
+		}
 		pop();
+	}
+
+	this.toggleIsFinal = function() {
+		this.isFinal = !this.isFinal;
 	}
 }
