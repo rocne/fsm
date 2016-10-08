@@ -15,23 +15,74 @@ var newTransitionStartState = -1;
 var startState = -1;
 var currentState = -1;
 
+var stepRate = 1.5;
+
+var isRunning = false;
+var timer;
+
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
 	var startButton = createButton("start", startClicked);
 	var pauseButton = createButton("pause", pauseClicked);
 	var stopButton = createButton("stop", stopClicked);
+	createLineBreak();
+	createSlider("step rate", stepRateInputChange_cb, 1, 10, 1, stepRate);
 }
 
 function stopClicked() {
 	console.log("stop clicked");
+	isRunning = false;
+	currentState = startState;
+	clearInterval(timer);
 }
 
 function pauseClicked() {
 	console.log("pause clicked");
+	isRunning = false;
+	clearInterval(timer);
 }
 
 function startClicked() {
 	console.log("start clicked");
+	isRunning = true;
+	timer = setInterval(tick, getIntervalDelay());
+}
+
+function getIntervalDelay() {
+	return 1000 / stepRate;
+}
+
+function stepRateInputChange_cb(input) {
+	stepRate = input.value;
+	clearInterval(timer);
+	timer = setInterval(tick, getIntervalDelay());
+}
+
+function createSlider(label_, callback, min, max, step, defaultValue) {
+	var slider = document.createElement("INPUT");
+	slider.type = "range";
+	slider.step = step;
+	slider.min = min;
+	slider.max = max;
+	slider.defaultValue = defaultValue;
+	
+	var label = document.createElement("SPAN");
+	label.innerHTML = label_;
+
+	var readout = document.createElement("SPAN");
+	readout.innerHTML = defaultValue;
+	slider.readout = readout;
+	slider.onchange = function() {
+		callback(this);
+		this.readout.innerHTML = this.value;
+	};
+	document.body.appendChild(label);
+	document.body.appendChild(slider);
+	document.body.appendChild(readout);
+}
+
+function createLineBreak() {
+	document.body.appendChild(document.createElement("BR"));
 }
 
 function createButton(label, callback) {
@@ -41,8 +92,13 @@ function createButton(label, callback) {
 	document.body.appendChild(button);
 }
 
+function tick() {
+	console.log("ticking the fsm!");
+}
+
 function draw() {
 	background(200);
+
 
 	highlightStartState();
 	highlightCurrentState();
