@@ -79,7 +79,6 @@ function mouseReleased() {
 
 function getTransition() {
 	var transitionText = prompt("Enter a transition character.", "transition character");
-	console.log(transitionText);
 	return transitionText;
 }
 

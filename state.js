@@ -35,8 +35,20 @@ function State(x, y, r) {
 		pop();		
 	}
 
-	this.showTransition = function(end) {
-		line(this.pos.x, this.pos.y, end.pos.x, end.pos.y);		
+	this.showTransition = function(endState) {
+		var start = this.pos.copy();
+		var end = endState.pos.copy();
+		var direction = p5.Vector.sub(end, start);
+		var angle = p5.Vector.angleBetween(direction, createVector(1, 0));
+		var dx = STATE_RADIUS * cos(angle);
+		var dy = STATE_RADIUS * sin(angle);
+		
+		line(start.x + dx, start.y + dy, end.x - dx, end.y - dy);
+		this.drawTransitionArrow(end, direction);
+	}
+
+	this.drawTransitionArrow = function (endPoint, transitionDirection) {
+		
 	}
 
 	this.addTransition = function(nextState, transitionValue) {
