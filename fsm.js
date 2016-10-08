@@ -5,7 +5,7 @@ var WIDTH = 650;
 var STATE_RADIUS = 20;
 
 var START_STATE_HIGHLIGHT_DR = 10;
-var CURR_STATE_HIGHLIGHT_DR = 8;
+var CURR_STATE_HIGHLIGHT_DR = -5;
 
 var states = [];
 
@@ -21,6 +21,7 @@ var isRunning = false;
 var timer;
 
 var fsmInput = "";
+var fsmInputIndex = 0;
 
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
@@ -42,6 +43,7 @@ function stopClicked() {
 	isRunning = false;
 	currentState = startState;
 	clearInterval(timer);
+	fsmInputIndex = 0;
 }
 
 function pauseClicked() {
@@ -52,8 +54,13 @@ function pauseClicked() {
 
 function startClicked() {
 	console.log("start clicked");
-	isRunning = true;
-	timer = setInterval(tick, getIntervalDelay());
+	if (startState != -1) {
+		if (currentState == -1)
+			currentState = startState;
+
+		isRunning = true;
+		timer = setInterval(tick, getIntervalDelay());
+	}
 }
 
 function getIntervalDelay() {
@@ -122,8 +129,18 @@ function createButton(label, callback) {
 
 function tick() {
 	console.log("ticking the fsm!");
+	console.log(fsmInput);
+	if (fsmInputIndex < fsmInput.length) {
+		var curr = fsmInput.charAt(fsmInputIndex);
+		console.log(curr);
+		var next = states[currentState].getNextState(curr);
+		if (next == undefined)
+			console.log ("foooooooooo");
+		else
+			currentState = next;
+		fsmInputIndex++;
+	}
 }
-
 function showFSMInput() {
 	push();
 	translate (10, HEIGHT - 10);

@@ -29,6 +29,10 @@ function State(x, y, r) {
 			this.showTransition(transitionValue);
 		}
 	}
+	
+	this.getNextState = function(transition) {
+		return this.transitions[transition];
+	}
 
 	this.showTransition = function(transitionValue) {
 		push();
