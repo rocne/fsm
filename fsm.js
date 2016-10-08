@@ -41,12 +41,12 @@ function createButton(label, callback) {
 
 function draw() {
 	background(200);
+
+	highlightStartState();
+	highlightCurrentState();
 	for (var i = 0; i < states.length; i++) {
 		states[i].show();
 	}
-	highlightStartState();
-	highlightCurrentState();
-
 	if (newTransitionStartState != -1)
 		showNewTransition();
 	
@@ -79,8 +79,9 @@ function highlightState(stateIndex, c, deltaRadius) {
 	var state = states[stateIndex];
 	push();
 	fill(c.r, c.g, c.b);
+	noStroke();
 	translate(state.pos.x, state.pos.y);
-	ellipse(0, 0, state.radius + deltaRadius);
+	ellipse(0, 0, 2 * state.radius + deltaRadius);
 	pop();	
 }
 
