@@ -36,21 +36,24 @@ function State(x, y, r) {
 		var nextState = this.transitions[transitionValue];
 		var endState = states[nextState];
 		
-		var start = this.pos.copy();
-		var end = endState.pos.copy();
-		var direction = p5.Vector.sub(end, start);
+		var startStatePos = this.pos.copy();
+		var endStatePos = endState.pos.copy();
+		var direction = p5.Vector.sub(endStatePos, startStatePos);
 		var angle = p5.Vector.angleBetween(direction, createVector(1, 0));
 		console.log(angle);
 		var dx = STATE_RADIUS * cos(angle);
 		var dy = STATE_RADIUS * sin(angle);
-		if (start.y < end.y)
+		if (startStatePos.y < endStatePos.y)
 			dy *= -1;
 		
-		line(start.x + dx, start.y - dy, end.x - dx, end.y + dy);
+		var lineStartPos = createVector(startStatePos.x + dx, startStatePos.y - dy);
+		var lineEndPos = createVector(endStatePos.x - dx, endStatePos.y + dy);
+
+		line(lineStartPos.x, lineStartPos.y, lineEndPos.x, lineEndPos.y);
 		pop();
 
-		this.drawTransitionArrow(end, direction);
-		this.drawTransitionText(start, end, transitionValue);
+		this.drawTransitionArrow(lineEndPos, direction);
+		this.drawTransitionText(startStatePos, endStatePos, transitionValue);
 	}
 	
 	this.drawTransitionText = function(start, end, txt) {
@@ -63,7 +66,15 @@ function State(x, y, r) {
 	}
 
 	this.drawTransitionArrow = function (endPoint, transitionDirection) {
-		
+		push();
+		var dir = transitionDirection.copy().normalize().mult(-10);
+		console.log(dir);
+		translate(endPoint.x, endPoint.y);
+		rotate(PI / 6);
+		line(0, 0, dir.x, dir.y);
+		rotate(-2 * PI / 6);
+		line(0, 0, dir.x, dir.y);
+		pop();		
 	}
 
 	this.addTransition = function(nextState, transitionValue) {
