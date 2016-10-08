@@ -44,6 +44,7 @@ function draw() {
 	for (var i = 0; i < states.length; i++) {
 		states[i].show();
 	}
+	highlightStartState();
 	highlightCurrentState();
 
 	if (newTransitionStartState != -1)
@@ -54,15 +55,33 @@ function draw() {
 
 function highlightCurrentState() {
 	if (currentState != -1) {
-		var curr = states[currentState];
-
-		push();
-		noFill();
-		stroke(0, 255, 0);
-		translate(curr.pos.x, curr.pos.y);
-		ellipse(0, 0, curr.radius + 2);
-		pop();	
+		var c = {
+			r: 200,
+			g: 0,
+			b: 0
+		};
+		highlightState(currentState, c, 10);
 	}
+}
+
+function highlightStartState() {
+	if (startState != -1) {
+		var c = {
+			r: 0,
+			g: 200,
+			b: 0
+		};
+		highlightState(startState, c, 13);
+	}
+}
+
+function highlightState(stateIndex, c, deltaRadius) {
+	var state = states[stateIndex];
+	push();
+	fill(c.r, c.g, c.b);
+	translate(state.pos.x, state.pos.y);
+	ellipse(0, 0, state.radius + deltaRadius);
+	pop();	
 }
 
 function showNewTransition() {
@@ -106,8 +125,11 @@ function mousePressed() {
 
 
 function rightMouseClick() {
-	console.log("right mouse click not done doofus");
+	console.log("working on it");
+	var clickedState = detectClickOnState();
+	startState = clickedState;
 }
+
 
 function centerMouseClick() {
 	console.log("I don't even know what I'd do with the center mouse click yet");
