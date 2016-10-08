@@ -74,9 +74,9 @@ function getIntervalDelay() {
 }
 
 function fsmInputChange_cb() {
-	if (!isRunning && currentState == startState) {
+	if (!isRunning) {
 		fsmInput = this.value;
-		console.log(this.value);
+		fsmInputIndex = 0;
 	}	
 }
 
@@ -134,8 +134,6 @@ function createButton(label, callback) {
 }
 
 function tick() {
-	console.log("ticking the fsm!");
-	console.log(fsmInput);
 	if (fsmInputIndex < fsmInput.length) {
 		var curr = fsmInput.charAt(fsmInputIndex);
 		console.log(curr);
@@ -148,9 +146,18 @@ function tick() {
 	}
 }
 function showFSMInput() {
+	var letterWidth = 10;
 	push();
 	translate (10, HEIGHT - 10);
-	text(fsmInput, 0, 0);
+	for (var i = 0; i < fsmInput.length; i++) {
+		if (i == fsmInputIndex)
+			stroke(255, 0, 0);
+		else
+			stroke(0);
+
+		text(fsmInput.charAt(i), 0, 0);
+		translate(letterWidth, 0);
+	}
 	pop();
 }
 
