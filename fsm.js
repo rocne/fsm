@@ -29,6 +29,32 @@ var timer = -1;
 var fsmInput = "";
 var fsmInputIndex = 0;
 
+var currentStateHighlightOffset;
+
+function ADD_TEST_SETUP(num) {
+	num = num || 0;
+	switch (num) {
+		case 0:
+			// four corner, all a, cycle
+			var tl = new State(100, 100, STATE_RADIUS);
+			var tr = new State(300, 100, STATE_RADIUS);
+			var bl = new State(100, 200, STATE_RADIUS);
+			var br = new State(300, 200, STATE_RADIUS);
+			states.push(tl);
+			states.push(tr);
+			states.push(br);
+			states.push(bl);
+			for (var i = 0; i < states.length; i++)
+				states[i].addTransition((i + 1) % states.length, "a");
+			startState = 0;
+			states[2].isFinal = true;
+			fsmInput = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+			break;
+		default:
+			break;
+	}
+}
+
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
 	createLineBreak();	
@@ -42,6 +68,7 @@ function setup() {
 	createLineBreak();
 	
 	createTextInput("fsm input: ", fsmInputChange_cb);
+	currentStateHighlightOffset = createVector(30, 0);
 }
 
 function stopClicked() {
@@ -139,8 +166,10 @@ function tick() {
 		var next = states[currentState].getNextState(curr);
 		if (next == undefined)
 			console.log ("foooooooooo");
-		else
+		else {
+			currentStateHighlightOffset = p5.Vector.sub(states[currentState].pos, states[next].pos);
 			currentState = next;
+		}
 		fsmInputIndex++;
 
 		timer = setTimeout(tick, getIntervalDelay());
@@ -166,9 +195,27 @@ function showFSMInput() {
 	pop();
 }
 
+function lerpCurrentStateHighlightOffset() {
+	if (isRunning && currentState != -1) {
+		// TODO: calculate decay such that we will be ~95% of the way there in the available time
+		//	 getIntervalDelay() -> time (ms)
+		//	 frameRate() / 1000 -> ms per frame
+		//	 timeToNextTick (ms) / msPerFrame = framesToNextTick
+		//	 dacay ^ famesToNextTick = 0.95
+		var decay = 0.25;
+		currentStateHighlightOffset.x = lerp(currentStateHighlightOffset.x, 0, decay);
+		currentStateHighlightOffset.y = lerp(currentStateHighlightOffset.y, 0, decay);
+	}
+}
+
 function draw() {
 	background(200);
 	showFSMInput();
+
+	lerpCurrentStateHighlightOffset();
+
+	console.log(currentState);
+	console.log(currentStateHighlightOffset);
 
 	highlightStartState();
 	highlightCurrentState();
@@ -189,7 +236,7 @@ function highlightCurrentState() {
 			b: 0,
 			a: 0.5
 		};
-		highlightState(currentState, c, CURR_STATE_HIGHLIGHT_DR);
+		highlightState(currentState, c, CURR_STATE_HIGHLIGHT_DR, currentStateHighlightOffset);
 	}
 }
 
@@ -205,13 +252,14 @@ function highlightStartState() {
 	}
 }
 
-function highlightState(stateIndex, c, deltaRadius) {
+function highlightState(stateIndex, c, deltaRadius, offset) {
+	offset = offset || createVector(0, 0);
 	var state = states[stateIndex];
 	push();
 	var col = "rgba(" + c.r +","+c.g+","+c.b+","+c.a+")";
 	fill(color(col));
 	noStroke();
-	translate(state.pos.x, state.pos.y);
+	translate(state.pos.x + offset.x, state.pos.y + offset.y);
 	ellipse(0, 0, 2 * (state.radius + deltaRadius));
 	pop();	
 }
