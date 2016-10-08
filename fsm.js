@@ -6,8 +6,11 @@ var STATE_RADIUS = 20;
 
 var states = [];
 
-var tPressed = false;
+var editTransitions = false;
 var newTransitionStartState = -1;
+
+var startState = -1;
+var currentState = -1;
 
 
 function setup() {
@@ -35,8 +38,18 @@ function showNewTransition() {
 }
 
 function keyPressed() {
-	if (key === 'T')
-		tPressed = !tPressed;
+	switch(key) {
+		case 'T':
+			tPressed();
+			break;
+		default:
+			break;
+	}
+}
+
+
+function tPressed() {
+	editTransitions = !editTransitions;
 }
 
 function mousePressed() {
@@ -44,7 +57,7 @@ function mousePressed() {
 	if (clickedState == -1) {
 		states.push(new State(mouseX, mouseY, STATE_RADIUS));
 	} else {
-		if (tPressed) {
+		if (editTransitions) {
 			newTransitionStartState = clickedState;
 		} else {
 			states[clickedState].toggleIsFinal();
@@ -55,11 +68,12 @@ function mousePressed() {
 function displayEditState() {
 	push();
 	var txt = "";
-	if (tPressed) {
-		txt = "click a state to toggle final state";
-	} else {
+	if (editTransitions) {
 		txt = "click a state and drag to anothr state to add a transition";
+	} else {
+		txt = "click a state to toggle final state";
 	}
+
 	translate(5, 10);
 	text(txt, 0, 0);
 	translate(0, 10);

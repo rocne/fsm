@@ -40,10 +40,11 @@ function State(x, y, r) {
 		var end = endState.pos.copy();
 		var direction = p5.Vector.sub(end, start);
 		var angle = p5.Vector.angleBetween(direction, createVector(1, 0));
+		console.log(angle);
 		var dx = STATE_RADIUS * cos(angle);
 		var dy = STATE_RADIUS * sin(angle);
 		
-		line(start.x + dx, start.y + dy, end.x - dx, end.y - dy);
+		line(start.x + dx, start.y - dy, end.x - dx, end.y + dy);
 		pop();
 
 		this.drawTransitionArrow(end, direction);
