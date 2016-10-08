@@ -284,7 +284,7 @@ function displayEditState() {
 function mouseReleased() {
 	if (newTransitionStartState != -1) {
 		var endState = detectClickOnState();
-		if (endState != -1) {
+		if (endState != -1 && endState != newTransitionStartState) {
 			var transitionChar = getTransition();
 			states[newTransitionStartState].addTransition(endState, transitionChar);
 		}
