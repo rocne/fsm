@@ -1,10 +1,16 @@
-
+/*
+* TODO: animate transitions across tick time
+* TODO: add a regular tick button
+* TODO: detect final state 
+*	-report partial acceptances as well as full acceptance
+*	-green background on success, red on fail
+*/
 var HEIGHT = 350;
 var WIDTH = 650;
 
 var STATE_RADIUS = 20;
 
-var START_STATE_HIGHLIGHT_DR = 10;
+var START_STATE_HIGHLIGHT_DR = -2;
 var CURR_STATE_HIGHLIGHT_DR = -5;
 
 var states = [];
@@ -166,9 +172,10 @@ function draw() {
 function highlightCurrentState() {
 	if (currentState != -1) {
 		var c = {
-			r: 200,
-			g: 0,
-			b: 0
+			r: states[currentState].isFinal ? 0 : 200,
+			g: states[currentState].isFinal ? 200 : 0,
+			b: 0,
+			a: 0.5
 		};
 		highlightState(currentState, c, CURR_STATE_HIGHLIGHT_DR);
 	}
@@ -177,9 +184,10 @@ function highlightCurrentState() {
 function highlightStartState() {
 	if (startState != -1) {
 		var c = {
-			r: 0,
-			g: 200,
-			b: 0
+			r: 50,
+			g: 50,
+			b: 50,
+			a: 0.5
 		};
 		highlightState(startState, c, START_STATE_HIGHLIGHT_DR);
 	}
@@ -188,10 +196,11 @@ function highlightStartState() {
 function highlightState(stateIndex, c, deltaRadius) {
 	var state = states[stateIndex];
 	push();
-	fill(c.r, c.g, c.b);
+	var col = "rgba(" + c.r +","+c.g+","+c.b+","+c.a+")";
+	fill(color(col));
 	noStroke();
 	translate(state.pos.x, state.pos.y);
-	ellipse(0, 0, 2 * state.radius + deltaRadius);
+	ellipse(0, 0, 2 * (state.radius + deltaRadius));
 	pop();	
 }
 
