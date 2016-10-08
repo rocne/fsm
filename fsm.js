@@ -15,6 +15,28 @@ var currentState = -1;
 
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
+	var startButton = createButton("start", startClicked);
+	var pauseButton = createButton("pause", pauseClicked);
+	var stopButton = createButton("stop", stopClicked);
+}
+
+function stopClicked() {
+	console.log("stop clicked");
+}
+
+function pauseClicked() {
+	console.log("pause clicked");
+}
+
+function startClicked() {
+	console.log("start clicked");
+}
+
+function createButton(label, callback) {
+	var button = document.createElement("BUTTON");
+	button.onclick = callback;
+	button.innerHTML = label;
+	document.body.appendChild(button);
 }
 
 function draw() {
@@ -53,14 +75,16 @@ function tPressed() {
 }
 
 function mousePressed() {
-	var clickedState = detectClickOnState();
-	if (clickedState == -1) {
-		states.push(new State(mouseX, mouseY, STATE_RADIUS));
-	} else {
-		if (editTransitions) {
-			newTransitionStartState = clickedState;
+	if (mouseX > 0 && mouseX < WIDTH && mouseY > 0 && mouseY < HEIGHT) {
+		var clickedState = detectClickOnState();
+		if (clickedState == -1) {
+			states.push(new State(mouseX, mouseY, STATE_RADIUS));
 		} else {
-			states[clickedState].toggleIsFinal();
+			if (editTransitions) {
+				newTransitionStartState = clickedState;
+			} else {
+				states[clickedState].toggleIsFinal();
+			}
 		}
 	}
 }
