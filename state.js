@@ -43,6 +43,8 @@ function State(x, y, r) {
 		console.log(angle);
 		var dx = STATE_RADIUS * cos(angle);
 		var dy = STATE_RADIUS * sin(angle);
+		if (start.y < end.y)
+			dy *= -1;
 		
 		line(start.x + dx, start.y - dy, end.x - dx, end.y + dy);
 		pop();
