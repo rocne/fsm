@@ -6,6 +6,10 @@ var STATE_RADIUS = 20;
 
 var states = [];
 
+var tPressed = false;
+var newTransitionStartState = -1;
+
+
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
 }
@@ -15,6 +19,26 @@ function draw() {
 	for (var i = 0; i < states.length; i++) {
 		states[i].show();
 	}
+	if (newTransitionStartState != -1)
+		showNewTransition();
+}
+
+function showNewTransition() {
+	push();
+	fill (255, 0, 0);
+	var start = states[newTransitionStartState];
+	line (start.pos.x, start.pos.y, mouseX, mouseY);
+	pop();
+}
+
+function keyPressed() {
+	if (key === 'T')
+		tPressed = true;
+}
+
+function keyReleased() {
+	if (key ==='T')
+		tPressed = false;
 }
 
 function mousePressed() {
@@ -22,7 +46,21 @@ function mousePressed() {
 	if (clickedState == -1) {
 		states.push(new State(mouseX, mouseY, STATE_RADIUS));
 	} else {
-		states[clickedState].toggleIsFinal();
+		if (tPressed) {
+			newTransitionStartState = clickedState;
+		} else {
+			states[clickedState].toggleIsFinal();
+		}
+	}
+}
+
+function mouseReleased() {
+	if (newTransitionStartState != -1) {
+		var endState = detectClickOnState();
+		if (endState != -1) {
+			states[newTransitionStartState].addTransition(endState, '');
+		}
+		newTransitionStartState = -1;
 	}
 }
 

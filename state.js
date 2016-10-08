@@ -5,7 +5,8 @@ function State(x, y, r) {
 	this.radius = r;
 	this.isFinal = false;
 	this.transitions = {};
-	
+	this.transitionValues = [];	
+
 	this.show = function() {
 		this.showState();
 		this.showTransitions();
@@ -23,11 +24,20 @@ function State(x, y, r) {
 	}
 	
 	this.showTransitions = function() {
-		
+		push();
+		fill(100);
+		for (var i = 0; i < this.transitionValues.length; i++) {
+			var transitionValue = this.transitionValues[i];
+			var nextState = this.transitions[transitionValue];
+			var end = states[nextState];
+			line(this.pos.x, this.pos.y, end.pos.x, end.pos.y);		
+		}
+		pop();		
 	}
 
 	this.addTransition = function(nextState, transitionValue) {
 		this.transitions[transitionValue] = nextState;
+		this.transitionValues.push(transitionValue);
 	}
 
 	this.toggleIsFinal = function() {
