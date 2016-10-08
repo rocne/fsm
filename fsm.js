@@ -4,6 +4,9 @@ var WIDTH = 650;
 
 var STATE_RADIUS = 20;
 
+var START_STATE_HIGHLIGHT_DR = 10;
+var CURR_STATE_HIGHLIGHT_DR = 8;
+
 var states = [];
 
 var editTransitions = false;
@@ -11,7 +14,6 @@ var newTransitionStartState = -1;
 
 var startState = -1;
 var currentState = -1;
-
 
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
@@ -60,7 +62,7 @@ function highlightCurrentState() {
 			g: 0,
 			b: 0
 		};
-		highlightState(currentState, c, 10);
+		highlightState(currentState, c, CURR_STATE_HIGHLIGHT_DR);
 	}
 }
 
@@ -71,7 +73,7 @@ function highlightStartState() {
 			g: 200,
 			b: 0
 		};
-		highlightState(startState, c, 13);
+		highlightState(startState, c, START_STATE_HIGHLIGHT_DR);
 	}
 }
 
@@ -160,9 +162,13 @@ function displayEditState() {
 		txt = "click a state to toggle final state";
 	}
 
-	translate(5, 10);
+	var shift = 11;
+
+	translate(5, shift);
 	text(txt, 0, 0);
-	translate(0, 10);
+	translate(0, shift);
+	text("right-click a state to select a start state", 0, 0);
+	translate(0, shift);
 	text("press 't' to toggle edit mode between 'final state' and 'transition'", 0, 0);
 	pop();	
 }

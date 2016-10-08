@@ -42,7 +42,6 @@ function State(x, y, r) {
 		
 		// make the line end at the edges of the circles, not the center
 		var angle = p5.Vector.angleBetween(direction, createVector(1, 0));
-		console.log(angle);
 		var dx = STATE_RADIUS * cos(angle);
 		var dy = STATE_RADIUS * sin(angle);
 		if (startStatePos.y < endStatePos.y)
@@ -60,17 +59,21 @@ function State(x, y, r) {
 	
 	this.drawTransitionText = function(start, end, txt) {
 		var mid = p5.Vector.add(start, end).mult(0.5);
+		var offsetDir = p5.Vector.sub(end, start).rotate(PI / 2).normalize();
+		offsetDir.mult(20);	
+		
+		var txtPos = p5.Vector.add(mid, offsetDir);
+		
 		push();
 		fill(0);
-		translate(mid.x, mid.y);
-		text(txt, 10, -10);
+		translate(txtPos.x, txtPos.y);
+		text(txt, 0, 0);
 		pop();
 	}
 
 	this.drawTransitionArrow = function (endPoint, transitionDirection) {
 		push();
 		var dir = transitionDirection.copy().normalize().mult(-10);
-		console.log(dir);
 		translate(endPoint.x, endPoint.y);
 		rotate(PI / 6);
 		line(0, 0, dir.x, dir.y);
