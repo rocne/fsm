@@ -59,6 +59,7 @@ function setup() {
 	createCanvas(WIDTH, HEIGHT);
 	createLineBreak();	
 
+	createButton("tick", tickClicked);
 	createButton("start", startClicked);
 	createButton("pause", pauseClicked);
 	createButton("stop", stopClicked);
@@ -68,11 +69,16 @@ function setup() {
 	createLineBreak();
 	
 	createTextInput("fsm input: ", fsmInputChange_cb);
-	currentStateHighlightOffset = createVector(30, 0);
+	currentStateHighlightOffset = createVector(0, 0);
+}
+
+function tickClicked() {
+	if (!isRunning) {
+		tick();
+	}
 }
 
 function stopClicked() {
-	console.log("stop clicked");
 	isRunning = false;
 	currentState = startState;
 	fsmInputIndex = 0;
@@ -80,20 +86,18 @@ function stopClicked() {
 }
 
 function pauseClicked() {
-	console.log("pause clicked");
 	isRunning = false;
 	clearTimeout(timer);
 }
 
 function startClicked() {
-	console.log("start clicked");
 	if (startState != -1 && !isRunning) {
 		if (currentState == -1)
 			currentState = startState;
 
 		isRunning = true;
 		clearTimeout(timer);
-		timer = setTimeout(tick, getIntervalDelay());
+		timer = setTimeout(tick, 0);
 	}
 }
 
@@ -160,7 +164,7 @@ function createButton(label, callback) {
 }
 
 function tick() {
-	if (isRunning && fsmInputIndex < fsmInput.length) {
+	if (fsmInputIndex < fsmInput.length) {
 		var curr = fsmInput.charAt(fsmInputIndex);
 		console.log(curr);
 		var next = states[currentState].getNextState(curr);
@@ -171,8 +175,9 @@ function tick() {
 			currentState = next;
 		}
 		fsmInputIndex++;
-
-		timer = setTimeout(tick, getIntervalDelay());
+		
+		if (isRunning)
+			timer = setTimeout(tick, getIntervalDelay());
 	}
 }
 	
@@ -196,7 +201,7 @@ function showFSMInput() {
 }
 
 function lerpCurrentStateHighlightOffset() {
-	if (isRunning && currentState != -1) {
+	if (currentState != -1) {
 		// TODO: calculate decay such that we will be ~95% of the way there in the available time
 		//	 getIntervalDelay() -> time (ms)
 		//	 frameRate() / 1000 -> ms per frame
@@ -212,10 +217,10 @@ function draw() {
 	background(200);
 	showFSMInput();
 
-	lerpCurrentStateHighlightOffset();
+	if (currentState == -1 && startState != -1)
+		currentState = startState;
 
-	console.log(currentState);
-	console.log(currentStateHighlightOffset);
+	lerpCurrentStateHighlightOffset();
 
 	highlightStartState();
 	highlightCurrentState();
@@ -230,9 +235,10 @@ function draw() {
 
 function highlightCurrentState() {
 	if (currentState != -1) {
+		var onFinal = states[currentState].isFinal && currentStateHighlightOffset.mag() < 2 * STATE_RADIUS;
 		var c = {
-			r: states[currentState].isFinal ? 0 : 200,
-			g: states[currentState].isFinal ? 200 : 0,
+			r: onFinal ? 0 : 200,
+			g: onFinal ? 200 : 0,
 			b: 0,
 			a: 0.5
 		};
