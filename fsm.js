@@ -20,13 +20,21 @@ var stepRate = 1.5;
 var isRunning = false;
 var timer;
 
+var fsmInput = "";
+
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
-	var startButton = createButton("start", startClicked);
-	var pauseButton = createButton("pause", pauseClicked);
-	var stopButton = createButton("stop", stopClicked);
+	createLineBreak();	
+
+	createButton("start", startClicked);
+	createButton("pause", pauseClicked);
+	createButton("stop", stopClicked);
 	createLineBreak();
+	
 	createSlider("step rate", stepRateInputChange_cb, 1, 10, 1, stepRate);
+	createLineBreak();
+	
+	createTextInput("fsm input: ", fsmInputChange_cb);
 }
 
 function stopClicked() {
@@ -50,6 +58,13 @@ function startClicked() {
 
 function getIntervalDelay() {
 	return 1000 / stepRate;
+}
+
+function fsmInputChange_cb() {
+	if (!isRunning && currentState == startState) {
+		fsmInput = this.value;
+		console.log(this.value);
+	}	
 }
 
 function stepRateInputChange_cb(input) {
@@ -81,6 +96,19 @@ function createSlider(label_, callback, min, max, step, defaultValue) {
 	document.body.appendChild(readout);
 }
 
+function createTextInput(label, callback) {
+	var txt = document.createElement("INPUT");
+	txt.type = "text";
+	txt.onchange = callback;
+	txt.size = 100;
+		
+	var labl = document.createElement("SPAN");
+	labl.innerHTML = label;
+	
+	document.body.appendChild(labl);
+	document.body.appendChild(txt);
+}
+
 function createLineBreak() {
 	document.body.appendChild(document.createElement("BR"));
 }
@@ -96,9 +124,16 @@ function tick() {
 	console.log("ticking the fsm!");
 }
 
+function showFSMInput() {
+	push();
+	translate (10, HEIGHT - 10);
+	text(fsmInput, 0, 0);
+	pop();
+}
+
 function draw() {
 	background(200);
-
+	showFSMInput();
 
 	highlightStartState();
 	highlightCurrentState();
