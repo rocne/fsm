@@ -24,7 +24,7 @@ var currentState = -1;
 var stepRate = 1.5;
 
 var isRunning = false;
-var timer;
+var timer = -1;
 
 var fsmInput = "";
 var fsmInputIndex = 0;
@@ -48,24 +48,25 @@ function stopClicked() {
 	console.log("stop clicked");
 	isRunning = false;
 	currentState = startState;
-	clearInterval(timer);
 	fsmInputIndex = 0;
+	clearTimeout(timer);
 }
 
 function pauseClicked() {
 	console.log("pause clicked");
 	isRunning = false;
-	clearInterval(timer);
+	clearTimeout(timer);
 }
 
 function startClicked() {
 	console.log("start clicked");
-	if (startState != -1) {
+	if (startState != -1 && !isRunning) {
 		if (currentState == -1)
 			currentState = startState;
 
 		isRunning = true;
-		timer = setInterval(tick, getIntervalDelay());
+		clearTimeout(timer);
+		timer = setTimeout(tick, getIntervalDelay());
 	}
 }
 
@@ -82,8 +83,6 @@ function fsmInputChange_cb() {
 
 function stepRateInputChange_cb(input) {
 	stepRate = input.value;
-	clearInterval(timer);
-	timer = setInterval(tick, getIntervalDelay());
 }
 
 function createSlider(label_, callback, min, max, step, defaultValue) {
@@ -134,7 +133,7 @@ function createButton(label, callback) {
 }
 
 function tick() {
-	if (fsmInputIndex < fsmInput.length) {
+	if (isRunning && fsmInputIndex < fsmInput.length) {
 		var curr = fsmInput.charAt(fsmInputIndex);
 		console.log(curr);
 		var next = states[currentState].getNextState(curr);
@@ -143,8 +142,12 @@ function tick() {
 		else
 			currentState = next;
 		fsmInputIndex++;
+
+		timer = setTimeout(tick, getIntervalDelay());
 	}
 }
+	
+
 function showFSMInput() {
 	var letterWidth = 10;
 	push();
@@ -152,6 +155,8 @@ function showFSMInput() {
 	for (var i = 0; i < fsmInput.length; i++) {
 		if (i == fsmInputIndex)
 			stroke(255, 0, 0);
+		else if (i < fsmInputIndex)
+			stroke(175);
 		else
 			stroke(0);
 
