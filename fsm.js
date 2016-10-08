@@ -44,11 +44,25 @@ function draw() {
 	for (var i = 0; i < states.length; i++) {
 		states[i].show();
 	}
+	highlightCurrentState();
 
 	if (newTransitionStartState != -1)
 		showNewTransition();
 	
 	displayEditState();
+}
+
+function highlightCurrentState() {
+	if (currentState != -1) {
+		var curr = states[currentState];
+
+		push();
+		noFill();
+		stroke(0, 255, 0);
+		translate(curr.pos.x, curr.pos.y);
+		ellipse(0, 0, curr.radius + 2);
+		pop();	
+	}
 }
 
 function showNewTransition() {
@@ -75,6 +89,31 @@ function tPressed() {
 }
 
 function mousePressed() {
+	switch(mouseButton) {
+		case LEFT:
+			leftMouseClick();
+			break;
+		case RIGHT:
+			rightMouseClick();
+			break;
+		case CENTER:
+			centerMouseClick();
+			break;
+		default:
+			break;
+	}
+}
+
+
+function rightMouseClick() {
+	console.log("right mouse click not done doofus");
+}
+
+function centerMouseClick() {
+	console.log("I don't even know what I'd do with the center mouse click yet");
+}
+
+function leftMouseClick() {
 	if (mouseX > 0 && mouseX < WIDTH && mouseY > 0 && mouseY < HEIGHT) {
 		var clickedState = detectClickOnState();
 		if (clickedState == -1) {

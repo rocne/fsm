@@ -39,6 +39,8 @@ function State(x, y, r) {
 		var startStatePos = this.pos.copy();
 		var endStatePos = endState.pos.copy();
 		var direction = p5.Vector.sub(endStatePos, startStatePos);
+		
+		// make the line end at the edges of the circles, not the center
 		var angle = p5.Vector.angleBetween(direction, createVector(1, 0));
 		console.log(angle);
 		var dx = STATE_RADIUS * cos(angle);
