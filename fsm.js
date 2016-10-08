@@ -21,6 +21,8 @@ function draw() {
 	}
 	if (newTransitionStartState != -1)
 		showNewTransition();
+	
+	displayEditState();
 }
 
 function showNewTransition() {
@@ -33,12 +35,7 @@ function showNewTransition() {
 
 function keyPressed() {
 	if (key === 'T')
-		tPressed = true;
-}
-
-function keyReleased() {
-	if (key ==='T')
-		tPressed = false;
+		tPressed = !tPressed;
 }
 
 function mousePressed() {
@@ -54,14 +51,36 @@ function mousePressed() {
 	}
 }
 
+function displayEditState() {
+	push();
+	var txt = "";
+	if (tPressed) {
+		txt = "click a state to toggle final state";
+	} else {
+		txt = "click a state and drag to anothr state to add a transition";
+	}
+	translate(5, 10);
+	text(txt, 0, 0);
+	translate(0, 10);
+	text("press 't' to toggle edit mode between 'final state' and 'transition'", 0, 0);
+	pop();	
+}
+
 function mouseReleased() {
 	if (newTransitionStartState != -1) {
 		var endState = detectClickOnState();
 		if (endState != -1) {
-			states[newTransitionStartState].addTransition(endState, '');
+			var transitionChar = getTransition();
+			states[newTransitionStartState].addTransition(endState, transitionChar);
 		}
 		newTransitionStartState = -1;
 	}
+}
+
+function getTransition() {
+	var transitionText = prompt("Enter a transition character.", "transition character");
+	console.log(transitionText);
+	return transitionText;
 }
 
 function detectClickOnState() {

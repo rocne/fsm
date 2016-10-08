@@ -30,9 +30,13 @@ function State(x, y, r) {
 			var transitionValue = this.transitionValues[i];
 			var nextState = this.transitions[transitionValue];
 			var end = states[nextState];
-			line(this.pos.x, this.pos.y, end.pos.x, end.pos.y);		
+			this.showTransition(end);
 		}
 		pop();		
+	}
+
+	this.showTransition = function(end) {
+		line(this.pos.x, this.pos.y, end.pos.x, end.pos.y);		
 	}
 
 	this.addTransition = function(nextState, transitionValue) {
