@@ -24,18 +24,18 @@ function State(x, y, r) {
 	}
 	
 	this.showTransitions = function() {
-		push();
-		fill(100);
 		for (var i = 0; i < this.transitionValues.length; i++) {
 			var transitionValue = this.transitionValues[i];
-			var nextState = this.transitions[transitionValue];
-			var end = states[nextState];
-			this.showTransition(end);
+			this.showTransition(transitionValue);
 		}
-		pop();		
 	}
 
-	this.showTransition = function(endState) {
+	this.showTransition = function(transitionValue) {
+		push();
+		fill(200);
+		var nextState = this.transitions[transitionValue];
+		var endState = states[nextState];
+		
 		var start = this.pos.copy();
 		var end = endState.pos.copy();
 		var direction = p5.Vector.sub(end, start);
@@ -44,7 +44,19 @@ function State(x, y, r) {
 		var dy = STATE_RADIUS * sin(angle);
 		
 		line(start.x + dx, start.y + dy, end.x - dx, end.y - dy);
+		pop();
+
 		this.drawTransitionArrow(end, direction);
+		this.drawTransitionText(start, end, transitionValue);
+	}
+	
+	this.drawTransitionText = function(start, end, txt) {
+		var mid = p5.Vector.add(start, end).mult(0.5);
+		push();
+		fill(0);
+		translate(mid.x, mid.y);
+		text(txt, 10, -10);
+		pop();
 	}
 
 	this.drawTransitionArrow = function (endPoint, transitionDirection) {

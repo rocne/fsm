@@ -19,6 +19,7 @@ function draw() {
 	for (var i = 0; i < states.length; i++) {
 		states[i].show();
 	}
+
 	if (newTransitionStartState != -1)
 		showNewTransition();
 	
