@@ -332,21 +332,23 @@ function leftMouseClick() {
 
 function displayEditState() {
 	push();
-	var txt = "";
-	if (editTransitions) {
-		txt = "click a state and drag to anothr state to add a transition";
-	} else {
-		txt = "click a state to toggle final state";
-	}
+	scale(0.8);
+	var txt = "Click mode (press 't' to toggle):           ";
+	txt += editTransitions ? "TRANSITIONS" : "FINAL STATES";
 
-	var shift = 11;
+	var shift = 13;
 
 	translate(5, shift);
 	text(txt, 0, 0);
+
 	translate(0, shift);
-	text("right-click a state to select a start state", 0, 0);
-	translate(0, shift);
-	text("press 't' to toggle edit mode between 'final state' and 'transition'", 0, 0);
+
+	txt = "Description:                                         ";
+	txt += editTransitions ? "Click and drag from one state to another state to add a transition." : "Click on a state to toggle between final and normal.";
+	text(txt, 0, 0);
+
+	translate(0, 2 * shift);
+	text("Right-click a state to designate it as the start state", 0, 0);
 	pop();	
 }
 
