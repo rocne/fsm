@@ -64,7 +64,7 @@ function draw() {
 *			input callback functions				*
 ****************************************************/
 function tickButtonClick_cb() {
-	if (!isRunning) {
+	if (!isRunning && currentState != -1 && startState != -1) {
 		tick();
 	}
 }
@@ -93,6 +93,13 @@ function startButtonClick_cb() {
 	}
 }
 
+function removeAllStatesButtonClick_cb() {
+	states = [];
+	currentState = -1;
+	startState = -1;
+	fsmInputIndex = 0;
+}
+
 function fsmInputChange_cb() {
 	if (!isRunning) {
 		fsmInput = this.value;
@@ -119,6 +126,8 @@ function createInputs() {
 	createButton("start", startButtonClick_cb);
 	createButton("pause", pauseButtonClick_cb);
 	createButton("stop", stopButtonClick_cb);
+	createLineBreak();
+	createButton("remove all states", removeAllStatesButtonClick_cb)
 	createLineBreak();
 	
 	createSlider("step rate", stepRateInputChange_cb, 1, 10, 0.05, stepRate);
