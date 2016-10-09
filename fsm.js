@@ -1,10 +1,4 @@
-/*
-* TODO: animate transitions across tick time
-* TODO: add a regular tick button
-* TODO: detect final state 
-*	-report partial acceptances as well as full acceptance
-*	-green background on success, red on fail
-*/
+// View Variables
 var HEIGHT = 350;
 var WIDTH = 650;
 
@@ -12,66 +6,56 @@ var STATE_RADIUS = 20;
 
 var START_STATE_HIGHLIGHT_DR = -2;
 var CURR_STATE_HIGHLIGHT_DR = -5;
+var currentStateHighlightOffset;
 
-var states = [];
-
+//Control Variables
 var editTransitions = false;
 var newTransitionStartState = -1;
+var stepRate = 1.5;
+var isRunning = false;
+var timer = -1;
+
+// Model Variables
+var states = [];
 
 var startState = -1;
 var currentState = -1;
 
-var stepRate = 1.5;
-
-var isRunning = false;
-var timer = -1;
-
 var fsmInput = "";
 var fsmInputIndex = 0;
 
-var currentStateHighlightOffset;
-
-function ADD_TEST_SETUP(num) {
-	num = num || 0;
-	switch (num) {
-		case 0:
-			// four corner, all a, cycle
-			var tl = new State(100, 100, STATE_RADIUS);
-			var tr = new State(300, 100, STATE_RADIUS);
-			var bl = new State(100, 200, STATE_RADIUS);
-			var br = new State(300, 200, STATE_RADIUS);
-			states.push(tl);
-			states.push(tr);
-			states.push(br);
-			states.push(bl);
-			for (var i = 0; i < states.length; i++)
-				states[i].addTransition((i + 1) % states.length, "a");
-			startState = 0;
-			states[2].isFinal = true;
-			fsmInput = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-			break;
-		default:
-			break;
-	}
-}
-
+/****************************************************
+*			top level control functions				*
+****************************************************/
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
-	createLineBreak();	
-
-	createButton("tick", tickClicked);
-	createButton("start", startClicked);
-	createButton("pause", pauseClicked);
-	createButton("stop", stopClicked);
-	createLineBreak();
-	
-	createSlider("step rate", stepRateInputChange_cb, 1, 10, 1, stepRate);
-	createLineBreak();
-	
-	createTextInput("fsm input: ", fsmInputChange_cb);
+	createInputs();
 	currentStateHighlightOffset = createVector(0, 0);
 }
 
+function draw() {
+	background(200);
+	showFSMInput();
+
+	if (currentState == -1 && startState != -1)
+		currentState = startState;
+
+	lerpCurrentStateHighlightOffset();
+
+	highlightStartState();
+	highlightCurrentState();
+	for (var i = 0; i < states.length; i++) {
+		states[i].show();
+	}
+	if (newTransitionStartState != -1)
+		showNewTransition();
+	
+	displayEditState();
+}
+
+/****************************************************
+*			input callback functions				*
+****************************************************/
 function tickClicked() {
 	if (!isRunning) {
 		tick();
@@ -101,10 +85,6 @@ function startClicked() {
 	}
 }
 
-function getIntervalDelay() {
-	return 1000 / stepRate;
-}
-
 function fsmInputChange_cb() {
 	if (!isRunning) {
 		fsmInput = this.value;
@@ -116,7 +96,30 @@ function stepRateInputChange_cb(input) {
 	stepRate = input.value;
 }
 
-function createSlider(label_, callback, min, max, step, defaultValue) {
+function getIntervalDelay() {
+	return 1000 / stepRate;
+}
+
+
+/****************************************************
+*				UI creation functions				*
+****************************************************/
+function createInputs() {
+	createLineBreak();	
+
+	createButton("tick", tickClicked);
+	createButton("start", startClicked);
+	createButton("pause", pauseClicked);
+	createButton("stop", stopClicked);
+	createLineBreak();
+	
+	createSlider("step rate", stepRateInputChange_cb, 1, 10, 0.05, stepRate);
+	createLineBreak();
+	
+	createTextInput("fsm input: ", fsmInputChange_cb);
+}
+
+function createSlider(labelText, callback, min, max, step, defaultValue) {
 	var slider = document.createElement("INPUT");
 	slider.type = "range";
 	slider.step = step;
@@ -125,7 +128,7 @@ function createSlider(label_, callback, min, max, step, defaultValue) {
 	slider.defaultValue = defaultValue;
 	
 	var label = document.createElement("SPAN");
-	label.innerHTML = label_;
+	label.innerHTML = labelText;
 
 	var readout = document.createElement("SPAN");
 	readout.innerHTML = defaultValue;
@@ -163,76 +166,9 @@ function createButton(label, callback) {
 	document.body.appendChild(button);
 }
 
-function tick() {
-	if (fsmInputIndex < fsmInput.length) {
-		var curr = fsmInput.charAt(fsmInputIndex);
-		console.log(curr);
-		var next = states[currentState].getNextState(curr);
-		if (next == undefined)
-			console.log ("foooooooooo");
-		else {
-			currentStateHighlightOffset = p5.Vector.sub(states[currentState].pos, states[next].pos);
-			currentState = next;
-		}
-		fsmInputIndex++;
-		
-		if (isRunning)
-			timer = setTimeout(tick, getIntervalDelay());
-	}
-}
-	
-
-function showFSMInput() {
-	var letterWidth = 10;
-	push();
-	translate (10, HEIGHT - 10);
-	for (var i = 0; i < fsmInput.length; i++) {
-		if (i == fsmInputIndex)
-			stroke(255, 0, 0);
-		else if (i < fsmInputIndex)
-			stroke(175);
-		else
-			stroke(0);
-
-		text(fsmInput.charAt(i), 0, 0);
-		translate(letterWidth, 0);
-	}
-	pop();
-}
-
-function lerpCurrentStateHighlightOffset() {
-	if (currentState != -1) {
-		// TODO: calculate decay such that we will be ~95% of the way there in the available time
-		//	 getIntervalDelay() -> time (ms)
-		//	 frameRate() / 1000 -> ms per frame
-		//	 timeToNextTick (ms) / msPerFrame = framesToNextTick
-		//	 dacay ^ famesToNextTick = 0.95
-		var decay = 0.25;
-		currentStateHighlightOffset.x = lerp(currentStateHighlightOffset.x, 0, decay);
-		currentStateHighlightOffset.y = lerp(currentStateHighlightOffset.y, 0, decay);
-	}
-}
-
-function draw() {
-	background(200);
-	showFSMInput();
-
-	if (currentState == -1 && startState != -1)
-		currentState = startState;
-
-	lerpCurrentStateHighlightOffset();
-
-	highlightStartState();
-	highlightCurrentState();
-	for (var i = 0; i < states.length; i++) {
-		states[i].show();
-	}
-	if (newTransitionStartState != -1)
-		showNewTransition();
-	
-	displayEditState();
-}
-
+/****************************************************
+*				drawing functions					*
+****************************************************/
 function highlightCurrentState() {
 	if (currentState != -1) {
 		var onFinal = states[currentState].isFinal && currentStateHighlightOffset.mag() < 2 * STATE_RADIUS;
@@ -277,6 +213,62 @@ function showNewTransition() {
 	line (start.pos.x, start.pos.y, mouseX, mouseY);
 	pop();
 }
+
+function showFSMInput() {
+	var letterWidth = 10;
+	push();
+	translate (10, HEIGHT - 10);
+	for (var i = 0; i < fsmInput.length; i++) {
+		if (i == fsmInputIndex)
+			stroke(255, 0, 0);
+		else if (i < fsmInputIndex)
+			stroke(175);
+		else
+			stroke(0);
+
+		text(fsmInput.charAt(i), 0, 0);
+		translate(letterWidth, 0);
+	}
+	pop();
+}
+
+
+function tick() {
+	if (fsmInputIndex < fsmInput.length) {
+		var curr = fsmInput.charAt(fsmInputIndex);
+		var next = states[currentState].getNextState(curr);
+		if (next == undefined)
+			console.log ("Something must have cone wrong!");
+		else {
+			currentStateHighlightOffset = p5.Vector.sub(states[currentState].pos, states[next].pos);
+			currentState = next;
+		}
+		fsmInputIndex++;
+		
+		if (isRunning)
+			timer = setTimeout(tick, getIntervalDelay());
+	}
+}
+	
+
+
+
+function lerpCurrentStateHighlightOffset() {
+	if (currentState != -1) {
+		// TODO: calculate decay such that we will be ~95% of the way there in the available time
+		//	 getIntervalDelay() -> time (ms)
+		//	 frameRate() / 1000 -> ms per frame
+		//	 timeToNextTick (ms) / msPerFrame = framesToNextTick
+		//	 dacay ^ famesToNextTick = 0.95
+		var decay = 0.25;
+		currentStateHighlightOffset.x = lerp(currentStateHighlightOffset.x, 0, decay);
+		currentStateHighlightOffset.y = lerp(currentStateHighlightOffset.y, 0, decay);
+	}
+}
+
+
+
+
 
 function keyPressed() {
 	switch(key) {
@@ -382,4 +374,32 @@ function detectClickOnState() {
 		}
 	}
 	return -1;
+}
+
+
+/****************************************************
+*				Test functions						*
+****************************************************/
+function ADD_TEST_SETUP(num) {
+	num = num || 0;
+	switch (num) {
+		case 0:
+			// four corner, all a, cycle
+			var tl = new State(100, 100, STATE_RADIUS);
+			var tr = new State(300, 100, STATE_RADIUS);
+			var bl = new State(100, 200, STATE_RADIUS);
+			var br = new State(300, 200, STATE_RADIUS);
+			states.push(tl);
+			states.push(tr);
+			states.push(br);
+			states.push(bl);
+			for (var i = 0; i < states.length; i++)
+				states[i].addTransition((i + 1) % states.length, "a");
+			startState = 0;
+			states[2].isFinal = true;
+			fsmInput = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+			break;
+		default:
+			break;
+	}
 }
