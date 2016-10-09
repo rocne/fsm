@@ -56,25 +56,26 @@ function draw() {
 /****************************************************
 *			input callback functions				*
 ****************************************************/
-function tickClicked() {
+function tickButtonClick_cb() {
 	if (!isRunning) {
 		tick();
 	}
 }
 
-function stopClicked() {
+function stopButtonClick_cb() {
 	isRunning = false;
 	currentState = startState;
 	fsmInputIndex = 0;
+	currentStateHighlightOffset = createVector(0, 0);
 	clearTimeout(timer);
 }
 
-function pauseClicked() {
+function pauseButtonClick_cb() {
 	isRunning = false;
 	clearTimeout(timer);
 }
 
-function startClicked() {
+function startButtonClick_cb() {
 	if (startState != -1 && !isRunning) {
 		if (currentState == -1)
 			currentState = startState;
@@ -107,10 +108,10 @@ function getIntervalDelay() {
 function createInputs() {
 	createLineBreak();	
 
-	createButton("tick", tickClicked);
-	createButton("start", startClicked);
-	createButton("pause", pauseClicked);
-	createButton("stop", stopClicked);
+	createButton("tick", tickButtonClick_cb);
+	createButton("start", startButtonClick_cb);
+	createButton("pause", pauseButtonClick_cb);
+	createButton("stop", stopButtonClick_cb);
 	createLineBreak();
 	
 	createSlider("step rate", stepRateInputChange_cb, 1, 10, 0.05, stepRate);
