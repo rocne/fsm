@@ -24,11 +24,18 @@ var currentState = -1;
 var fsmInput = "";
 var fsmInputIndex = 0;
 
+window.onload = function() {
+	// disable right click from opening menu
+	document.body.oncontextmenu = function() {
+		return false;
+	}
+}
+
 /****************************************************
 *			top level control functions				*
 ****************************************************/
 function setup() {
-	createCanvas(WIDTH, HEIGHT);
+	var canv = createCanvas(WIDTH, HEIGHT);
 	createInputs();
 	currentStateHighlightOffset = createVector(0, 0);
 }
@@ -50,7 +57,7 @@ function draw() {
 	if (newTransitionStartState != -1)
 		showNewTransition();
 	
-	displayEditState();
+	displayControlText();
 }
 
 /****************************************************
@@ -207,6 +214,28 @@ function highlightState(stateIndex, c, deltaRadius, offset) {
 	pop();	
 }
 
+function displayControlText() {
+	push();
+	scale(0.8);
+	var txt = "Click mode (press 't' to toggle):           ";
+	txt += editTransitions ? "TRANSITIONS" : "FINAL STATES";
+
+	var shift = 13;
+
+	translate(5, shift);
+	text(txt, 0, 0);
+
+	translate(0, shift);
+
+	txt = "Description:                                         ";
+	txt += editTransitions ? "Click and drag from one state to another state to add a transition." : "Click on a state to toggle between final and normal.";
+	text(txt, 0, 0);
+
+	translate(0, 2 * shift);
+	text("Right-click a state to designate it as the start state", 0, 0);
+	pop();	
+}
+
 function showNewTransition() {
 	push();
 	fill (255, 0, 0);
@@ -250,9 +279,6 @@ function tick() {
 			timer = setTimeout(tick, getIntervalDelay());
 	}
 }
-	
-
-
 
 function lerpCurrentStateHighlightOffset() {
 	if (currentState != -1) {
@@ -267,10 +293,9 @@ function lerpCurrentStateHighlightOffset() {
 	}
 }
 
-
-
-
-
+/****************************************************
+*					keypress events					*
+****************************************************/
 function keyPressed() {
 	switch(key) {
 		case 'T':
@@ -286,6 +311,9 @@ function tPressed() {
 	editTransitions = !editTransitions;
 }
 
+/****************************************************
+*					mouse events					*
+****************************************************/
 function mousePressed() {
 	switch(mouseButton) {
 		case LEFT:
@@ -304,7 +332,6 @@ function mousePressed() {
 
 
 function rightMouseClick() {
-	console.log("working on it");
 	var clickedState = detectClickOnState();
 	startState = clickedState;
 }
@@ -329,28 +356,6 @@ function leftMouseClick() {
 	}
 }
 
-function displayEditState() {
-	push();
-	scale(0.8);
-	var txt = "Click mode (press 't' to toggle):           ";
-	txt += editTransitions ? "TRANSITIONS" : "FINAL STATES";
-
-	var shift = 13;
-
-	translate(5, shift);
-	text(txt, 0, 0);
-
-	translate(0, shift);
-
-	txt = "Description:                                         ";
-	txt += editTransitions ? "Click and drag from one state to another state to add a transition." : "Click on a state to toggle between final and normal.";
-	text(txt, 0, 0);
-
-	translate(0, 2 * shift);
-	text("Right-click a state to designate it as the start state", 0, 0);
-	pop();	
-}
-
 function mouseReleased() {
 	if (newTransitionStartState != -1) {
 		var endState = detectClickOnState();
@@ -360,11 +365,6 @@ function mouseReleased() {
 		}
 		newTransitionStartState = -1;
 	}
-}
-
-function getTransition() {
-	var transitionText = prompt("Enter a transition character.", "transition character");
-	return transitionText;
 }
 
 function detectClickOnState() {
@@ -377,6 +377,10 @@ function detectClickOnState() {
 	return -1;
 }
 
+function getTransition() {
+	var transitionText = prompt("Enter a transition character.", "transition character");
+	return transitionText;
+}
 
 /****************************************************
 *				Test functions						*
